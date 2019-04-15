@@ -26,6 +26,14 @@ class Movies extends Component {
     this.setState({ movies });
   };
 
+  handleLike = movie => {
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+    movies[index] = { ...movies[index] };
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
+  };
+
   handlePageChange = page => {
     this.setState({ currentPage: page });
   };
@@ -38,13 +46,8 @@ class Movies extends Component {
     this.setState({ sortColumn }); //avalesh faghat in bood  sortColumn: { path, order: 'asc'
   };
 
-  render() {
-    const { length: count } = this.state.movies; //length = this.state.movies.length
-
+  getPageData = () => {
     const { pageSize, currentPage, selectedGenre, movies: allMovies, sortColumn } = this.state;
-
-    if (count === 0) return <p>There is no movies in the database.</p>;
-
     const filtered =
       selectedGenre && selectedGenre._id // inja ino neveshtim chon baraye allgenre id nadarim pas inja tarifesh kardim ke age id ha ham barabar nabod all movie ro be ma bede...age barabar bod filter kone
         ? allMovies.filter(m => m.genre._id == selectedGenre._id)
@@ -53,7 +56,16 @@ class Movies extends Component {
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]); //mige filtero begir bar asase titlesh ke dar path tarif shode be shekle asc orderesh kon
 
     const movies = paginate(sorted, currentPage, pageSize); // inja ham ye arraye jadid sakhtim ke etelaatesh paginate shode beshe va az fni ke dar paginate.js hast estefade kardim barash va dar bakhshaye dge ham in movies ro be onvane array estefade kardim
+    return { totalCount: filtered.length, data: movies };
+  };
 
+  render() {
+    const { length: count } = this.state.movies; //length = this.state.movies.length
+
+    const { pageSize, currentPage, sortColumn } = this.state;
+
+    if (count === 0) return <p>There is no movies in the database.</p>;
+    const { totalCount, data: movies } = this.getPageData();
     return (
       <div className="row">
         <div className="col-3">
@@ -64,15 +76,16 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
-          <p>Showing {filtered.length} movies in the database.</p>
+          <p>Showing {totalCount} movies in the database.</p>
           <MoviesTable
             movies={movies}
             sortColumn={sortColumn}
             onDelete={this.handleDelete}
             onSort={this.handleSort}
+            onLike={this.handleLike}
           />
           <Pagination
-            itemsCount={filtered.length} //tedade filma
+            itemsCount={totalCount} //tedade filma
             pageSize={pageSize}
             currentPage={currentPage}
             onPageChange={this.handlePageChange}
