@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Like from './common/like';
 import Table from './common/table';
 
@@ -7,7 +8,11 @@ import Table from './common/table';
 
 class MoviesTable extends Component {
   columns = [
-    { path: 'title', label: 'Table' },
+    {
+      path: 'title',
+      label: 'Table',
+      content: movie => <Link to={`/movies/${movie._id}`}>{movie.title}</Link>, //inja content ye property hast ke fn ro tarif mikone ke movie ro migire va ye link azash ijad mikone ke ba un url shenakhte mishe va rabt [eyda mikone be movie title...]yani kari mikone ke roye title mizanim id ro dar url baraye har movie namayesh mide
+    },
     { path: 'genre.name', label: 'Genre' },
     { path: 'numberInStock', label: 'Stock' },
     { path: 'dailyRentalRate', label: 'Rate' },
