@@ -30,3 +30,43 @@ const Table = props => {
     </table>
   );
 };
+
+
+login form :
+ handleChange = e => {
+    const account = { ...this.state.account }; //inja bma state ro clone mikonim taghirat ro anjam midim bad react khodesh state aslio avaz mikone
+    account.username = e.currentTarget.value; //inja ham migim username accounte clone shodaro begir bad valueye current targetemon ro ke input hast ro behesh ekhtesas bede
+    this.setState({ account }); //new account obj
+  }; //in kar ham baraye ine ke vaghti ye chizi ro too input neveshtim ststae inja update beshe va hamono neshon bede(single source of truth)
+in ghable ine ke handlechange ro be halati tabdil konim ke ham baraye pssword kar kone ham username
+
+
+//login form ghabl az sakhtane input component
+  <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              value={account.username}
+              onChange={this.handleChange}
+              name="username"
+              autoFocus
+              id="username"
+              type="text"
+              className="form-control"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              value={account.password}
+              onChange={this.handleChange}
+              name="password"
+              id="password"
+              type="text"
+              className="form-control"
+            />
+          </div>
+          <button className="btn btn-primary">Login</button>
+        </form>
+
+        
