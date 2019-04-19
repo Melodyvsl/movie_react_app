@@ -69,4 +69,127 @@ in ghable ine ke handlechange ro be halati tabdil konim ke ham baraye pssword ka
           <button className="btn btn-primary">Login</button>
         </form>
 
+
+//login form before extracting
+
+import React, { Component } from 'react';
+import Joi from 'joi-browser';
+import Input from './common/input';
+
+class LoginForm extends Component {
+  state = {
+    account: { username: '', password: '' },
+    errors: {}, //inja obj estefade mikonim chon seda kardanesh asoontar az array hast ba [' '] mishe sedash kard ama array ro bayad ba find peyda kard
+  };
+
+  schema = {
+    username: Joi.string().required(),
+    password: Joi.string().required(),
+  }; //joze library joi hast ke tarif mikonim har property bayad chi bashe
+
+  validate = () => {
+    const result = Joi.validate(this.state.account, this.schema, { abortEarly: false }); //abort ham errore bydefulte khode in librarye ke pakkeshkardim injori
+    console.log(result);
+
+    const errors = {};
+    const { account } = this.state;
+
+    if (account.username.trim() === '') errors.username = 'Username is required.'; //inja mige age ke filled khali bood in property be wrror ezafe she
+    if (account.password.trim() === '') errors.password = 'Password is required.';
+
+    return Object.keys(errors).length === 0 ? null : errors; // inja ham property haye error ro migire to ye array gharar mide mige age length 0 bood null return she gheyre in soorat errore marbote
+  };
+
+  handleSubmit = e => {
+    //disable sending this post this form to server
+    e.preventDefault();
+
+    //validate data and if there is a error, returns it
+    const errors = this.validate();
+    console.log(errors);
+    this.setState({ errors: errors || {} }); //bade anjame fn validate age tosh chizi bod ke oono namayesh mide ama age nabood jaye null bayad in obj khali gharar begire//errors property age truty bood va daronesh chizi bood ke hich age nabood bayad ye obj khali tosh bashe chonnemitone null bashe va baese ijade error mishe
+    if (errors) return;
+
+    //call the server
+    console.log('submitted');
+  }; //ye event object be onvane argument gereft va ba in fn az reloade kamele page jologiri mikoni//dar vaghe injori az reloade kamele page jologiri mishe
+
+  validateProperty = ({ name, value }) => {
+    const obj = { [name]: value };
+    const schema = { [name]: this.schema[name] };
+    const { error } = Joi.validate(obj, schema);
+    return error ? error.details[0].message : null; //age error true bood miad payame defulte khode joi ro chap mikone age nabod null mishe
+  };
+
+  handleChange = ({ currentTarget: input }) => {
+    //validate the input field after typing
+    const errors = { ...this.state.errors }; //obj errors ro clone kardim
+    const errorMessage = this.validateProperty(input); //mikhaym error zamani namayesh dade she ke darim chizi minevisim fn validate maleo kole safas
+    if (errorMessage) errors[input.name] = errorMessage;
+    //age errormessage truthy bood dar obj errors esme inpute morede nazar(masalan username) ro gharar bede va ron ro dar errormessage zakhire kon
+    else delete errors[input.name]; //age errori nabod az errors in property pak she
+
+    //after typing value, change the state
+    const account = { ...this.state.account }; //inja bma state ro clone mikonim taghirat ro anjam midim bad react khodesh state aslio avaz mikone
+    account[input.name] = input.value; //inja ham migim username accounte clone shodaro begir bad valueye current targetemon ro ke input hast ro behesh ekhtesas bede
+
+    this.setState({ account, errors }); //new account obj
+  }; //in kar ham baraye ine ke vaghti ye chizi ro too input neveshtim ststae inja update beshe va hamono neshon bede(single source of truth)
+  //inja jaye e mishe kolan currentTarget ro be onvane arg gereft chon az ye property bishtar estefade nakardim az e obj pas khode hamon ro arg migirim
+
+  render() {
+    const { account, errors } = this.state;
+    return (
+      <div>
+        <h1>Login</h1>
+        <form onSubmit={this.handleSubmit}>
+          <Input
+            name="username"
+            value={account.username}
+            label="Username"
+            onChange={this.handleChange}
+            error={errors.username}
+          />
+          <Input
+            name="password"
+            value={account.password}
+            label="Password"
+            onChange={this.handleChange}
+            error={errors.password}
+          />
+
+          <button
+            disabled={this.validate()} //in bayad ya true bashe ya false...in fn ham ya null ro return mikone ya ye obj ba yek ya chandta error ro...age null she ke falsye engar in fn mishe false pas yani error nadarim dokme kar mikone ama age obj bashe obj considered truthy pas ture be hesab miad va disable mishe dokme
+            className="btn btn-primary"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    );
+  }
+}
+
+export default LoginForm;
+
+//value darone input baes shod ke dge inpute ma state khodesho ro nadashte bashe va connect she be stati ke inja darim
         
+
+//input component 
+const Input = ({ type, name, label, value, onChange, error }) => {
+  return (
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      <input
+        value={value}
+        onChange={onChange}
+        name={name}
+        autoFocus
+        id={name}
+        type={type} //baraye ine ke password namayesh dade nashe
+        className="form-control"
+      />
+      {error && <div className="alert alert-danger">{error}</div>}
+    </div> // age error truthy bashe oon div namayesh dadde mishe age nabashe namayesh dade nemishe
+  );
+};
