@@ -83,7 +83,7 @@ export function saveMovie(movie) {
   movieInDb.dailyRentalRate = movie.dailyRentalRate;
 
   if (!movieInDb._id) {
-    movieInDb._id = Date.now();
+    movieInDb._id = Date.now().toString(); //without tostring we couldn't edit a new movie//why??
     movies.push(movieInDb);
   }
 

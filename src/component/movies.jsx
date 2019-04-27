@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import Pagination from './common/pagination';
 import MoviesTable from './moviesTable';
+import { Link } from 'react-router-dom';
 import ListGroup from './common/listGroup';
 import { getGenres } from '../servises/fakeGenreService';
 import { paginate } from '../utils/paginate';
 import { getMovies } from '../servises/fakeMovieService';
 import _ from 'lodash'; //baraye sorting kardan//library baraye kar ba arayeha
+import SearchBox from './searchBox';
 
 class Movies extends Component {
   state = {
@@ -13,6 +15,8 @@ class Movies extends Component {
     genres: [],
     currentPage: 1,
     pageSize: 4,
+    searchQuery: '',
+    selectedGenre: null, //??
     sortColumn: { path: 'title', order: 'asc' },
   };
 
@@ -39,7 +43,11 @@ class Movies extends Component {
   };
 
   handleGenreSelect = genre => {
-    this.setState({ selectedGenre: genre, currentPage: 1 }); //inja baraye inke age allgenre ro bezanim va safehate mokhtalefesho baraye genraye mokhtalef hamsafeye dovom neshon mide ke khalie baraye hamin baraye baghie genra bayad bargardim be safeye aval ta neshon bede 3 ta filmesho
+    this.setState({ selectedGenre: genre, searchQuery: '', currentPage: 1 }); //inja baraye inke age allgenre ro bezanim va safehate mokhtalefesho baraye genraye mokhtalef hamsafeye dovom neshon mide ke khalie baraye hamin baraye baghie genra bayad bargardim be safeye aval ta neshon bede 3 ta filmesho
+  };
+
+  handleSearch = query => {
+    this.setState({ searchQuery: query, selectedGenre: null, currentPage: 1 });
   };
 
   handleSort = sortColumn => {
@@ -47,11 +55,23 @@ class Movies extends Component {
   };
 
   getPageData = () => {
-    const { pageSize, currentPage, selectedGenre, movies: allMovies, sortColumn } = this.state;
-    const filtered =
-      selectedGenre && selectedGenre._id // inja ino neveshtim chon baraye allgenre id nadarim pas inja tarifesh kardim ke age id ha ham barabar nabod all movie ro be ma bede...age barabar bod filter kone
-        ? allMovies.filter(m => m.genre._id == selectedGenre._id)
-        : allMovies; // if selectedItem truthy filter kon oon filmai ke idishon ba idie selected item yekie dar gheyre in sorat kole fimlaro neshon bede
+    const {
+      pageSize,
+      currentPage,
+      selectedGenre,
+      movies: allMovies,
+      sortColumn,
+      searchQuery,
+    } = this.state;
+
+    let filtered = allMovies;
+
+    if (searchQuery)
+      filtered = allMovies.filter(m => m.title.toLowerCase().startsWith(searchQuery.toLowerCase()));
+    else if (selectedGenre && selectedGenre._id)
+      // inja ino neveshtim chon baraye allgenre id nadarim pas inja tarifesh kardim ke age id ha ham barabar nabod all movie ro be ma bede...age barabar bod filter kone
+      filtered = allMovies.filter(m => m.genre._id == selectedGenre._id);
+    // if selectedItem truthy filter kon oon filmai ke idishon ba idie selected item yekie dar gheyre in sorat kole fimlaro neshon bede
 
     const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]); //mige filtero begir bar asase titlesh ke dar path tarif shode be shekle asc orderesh kon
 
@@ -62,7 +82,7 @@ class Movies extends Component {
   render() {
     const { length: count } = this.state.movies; //length = this.state.movies.length
 
-    const { pageSize, currentPage, sortColumn } = this.state;
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
 
     if (count === 0) return <p>There is no movies in the database.</p>;
     const { totalCount, data: movies } = this.getPageData();
@@ -75,7 +95,14 @@ class Movies extends Component {
             onItemSelect={this.handleGenreSelect}
           />
         </div>
+
         <div className="col">
+          <Link to="/movies/new" className="btn btn-primary" style={{ marginBottom: 30 }}>
+            New Movie
+          </Link>
+          <div>
+            <SearchBox value={searchQuery} onChange={this.handleSearch} />
+          </div>
           <p>Showing {totalCount} movies in the database.</p>
           <MoviesTable
             movies={movies}
@@ -97,3 +124,4 @@ class Movies extends Component {
 }
 
 export default Movies;
+//searcbox cotroll componenti k=hast ke data ro migire va rosh ye event anjam mide

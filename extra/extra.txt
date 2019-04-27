@@ -193,3 +193,38 @@ const Input = ({ type, name, label, value, onChange, error }) => {
     </div> // age error truthy bashe oon div namayesh dadde mishe age nabashe namayesh dade nemishe
   );
 };
+
+//movie form ghable taghir 
+import React from 'react';
+import { saveMovie } from '../servises/fakeMovieService';
+
+const MovieForm = ({ match, history }) => {
+  return (
+    <div>
+      <h1>MovieForm {match.params.id}</h1>
+      <button className="btn btn-primary" onClick={() => history.push('/movies')}>
+        Save
+      </button>
+    </div>
+  );
+};
+
+export default MovieForm;
+
+//az match baraye gereftane id estefade mishe chon marboot be parametrhas az history baraye estefade az fn push estefade mishe ke mishe maro bargardone
+//be safei ke mikhaym.inja ham mige ke idie filmi ke rosh clcik shode in hast va svae ro ke bezanim bar migardim be safeye movie
+
+
+//movies.jsx
+  getPageData = () => {
+    const { pageSize, currentPage, selectedGenre, movies: allMovies, sortColumn, } = this.state;
+    const filtered =
+      selectedGenre && selectedGenre._id // inja ino neveshtim chon baraye allgenre id nadarim pas inja tarifesh kardim ke age id ha ham barabar nabod all movie ro be ma bede...age barabar bod filter kone
+        ? allMovies.filter(m => m.genre._id == selectedGenre._id)
+        : allMovies; // if selectedItem truthy filter kon oon filmai ke idishon ba idie selected item yekie dar gheyre in sorat kole fimlaro neshon bede
+
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]); //mige filtero begir bar asase titlesh ke dar path tarif shode be shekle asc orderesh kon
+
+    const movies = paginate(sorted, currentPage, pageSize); // inja ham ye arraye jadid sakhtim ke etelaatesh paginate shode beshe va az fni ke dar paginate.js hast estefade kardim barash va dar bakhshaye dge ham in movies ro be onvane array estefade kardim
+    return { totalCount: filtered.length, data: movies };
+  };

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Joi from 'joi-browser';
 import Input from './input';
+import Select from './select';
 
 class Form extends Component {
   state = {
@@ -15,8 +16,8 @@ class Form extends Component {
     const errors = {};
     const { data } = this.state;
 
-    if (data.username.trim() === '') errors.username = 'Username is required.'; //inja mige age ke filled khali bood in property be wrror ezafe she
-    if (data.password.trim() === '') errors.password = 'Password is required.';
+    //if (data.username.trim() === '') errors.username = 'Username is required.'; //inja mige age ke filled khali bood in property be wrror ezafe she
+    //if (data.password.trim() === '') errors.password = 'Password is required.';
 
     return Object.keys(errors).length === 0 ? null : errors; // inja ham property haye error ro migire to ye array gharar mide mige age length 0 bood null return she gheyre in soorat errore marbote
   };
@@ -65,6 +66,20 @@ class Form extends Component {
       >
         {label}
       </button>
+    );
+  }
+
+  renderSelect(name, label, options) {
+    const { data, errors } = this.state;
+    return (
+      <Select
+        name={name}
+        value={data[name]}
+        label={label}
+        options={options}
+        onChange={this.handleChange}
+        error={errors[name]}
+      />
     );
   }
 
